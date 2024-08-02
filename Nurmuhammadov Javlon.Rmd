@@ -1,0 +1,657 @@
+---
+title: Development of foreign trade activities of regions in the conditions of digitalization
+  of international trade
+author: "Nurmuhammadov Javlon"
+date: "`r Sys.Date()`"
+output:
+  html_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+
+**Keywords**: digitalization, foreign trade activity, international trade, Uzbekistan regions
+
+## 1. The objective of this research
+The goal of this study is to examine the impact of digitalization on the regions of the Republic of Uzbekistan, as well as the consequences for their foreign trade activity.
+
+## 2. Literature review
+
+Li, Zhang, and Zhang (2023) investigates the influence of the digital economy on inter-regional trade within China in their article[^1]. The authors employ a panel data analysis of China's provinces from 2006 to 2017. Their key arguments are:
+
+* The digital economy significantly bolsters inter-regional trade flows (both incoming and outgoing) and exhibits positive spatial spillover effects, meaning development in one region can influence neighboring regions.
+* This positive effect is particularly pronounced in less developed and non-border regions, highlighting the potential for the digital economy to bridge regional divides.
+* The digital economy primarily promotes inter-regional trade through two channels:
+    * **Reduced trade costs:** Digital technologies streamline logistics and financial processes, leading to lower transaction and transportation costs.
+    * **Stimulated market demand:** E-commerce platforms and digital marketing tools create new opportunities for businesses to reach customers across regions, fostering demand.
+
+The study acknowledges that the digital economy's impact on resource allocation and technological innovation in promoting inter-regional trade requires further exploration. Although this article analyses the impact of digitalization on inter-regional trade, methodology and findings is similar to this case.
+
+At the practical application level, the digital economy is based on digital technology, and the use of information and communication technology, digital platforms, and blockchain technology may drastically lower trade costs[^2]. Some researchers have also investigated the possibility of the digital economy to improve bilateral trade and greatly increase domestic trade flows by developing a comprehensive digital economy index[^3]. Given the great degree of overlap between the Internet and digitalization, researchers have investigated the Internet's influence on domestic and international trade. Furthermore, several studies have discovered that the digital economy drives greater growth in local commerce than foreign trade, and the potential for improving inter-regional connection remains enormous.
+
+## 3. Theory
+
+Compared to statistical approaches using cross-sectional data, panel data analysis allows researchers to achieve a substantially better level of statistical validity in data analysis and evaluation of models using more complex research designs. Panel data analysis has been utilized in many social science research papers and journal articles as a result of these benefits, and in recent years, academics have begun to employ it more and more.
+
+At its core, panel data allows us to control for unobserved heterogeneity – persistent characteristics of individuals that aren't directly captured by the data but can influence the dependent variable. For example, in this case, regions have their own unique characterstics that have impact on foreign trade turnover, such as geographical location, culture. Panel data helps address this by including an individual fixed effect (α_i) in the model. This effect captures all the time-invariant characteristics of individual 'i' that influence income.
+
+As noted by Baltagi (2005)[^4], one of the fixed effects model's main advantages is its capacity to account for bias resulting from missing variables. It is possible to effectively handle unobserved heterogeneity, which might potentially obscure the connection between variables in a simple regression.
+
+The mathematical representation of the fixed effects model:
+
+$$Y_it = α_i + \beta X_it + ε_it$$
+
+* $Y_it$: Dependent variable for individual 'i' at time 't'
+* $α_i$: Individual fixed effect for individual 'i'
+* $\beta$: The effect of the independent variable on the dependent variable
+* $X_it$: Independent variable for individual 'i' at time 't'
+* $ε_it$: Error term
+
+But there are also drawbacks to the model. Wooldridge (2010)[^5] asserts that because time-invariant independent factors are differenced out along with the individual fixed effect, fixed effects models are unable to evaluate the impact of these variables.
+
+Despite these drawbacks, fixed effects models have numerous usages in many different industries. When examining the effect of work training on earnings, labor economists utilize them to account for individual abilities. In a similar way, political scientists may use them to examine how various policies affect voting patterns while taking into consideration unreported regional variables.
+
+There is more to panel data theory than just fixed effects. The random effects model, which presupposes that each individual impact is random and uncorrelated with the independent variables, was developed by researchers such as Arellano and Bond (1991)[^6]. This makes it possible to estimate the impacts of independent variables that change over time as well as those that don't.
+
+## 4. DataSet Details
+The dataset is constructed by the author based on the statistical data from Stat.uz (STATISTICS AGENCY UNDER THE PRESIDENT OF THE REPUBLIC OF UZBEKISTAN). Panel dataset consists of cross-sectional data, including economic data of Uzbekistan's regions from 2015 to 2022.
+
+There is a total of 112 observations on 14 regions and 12 variables.
+
+## 5. Data structure
+
+This panel dataset is balanced and it has these variables:
+
+* **GCI** - Growth rates of the volume of communication and information services by region (percentage) ~ [Source]("https://data.egov.uz/eng/data/6114f312114fbfdc20c356b5")
+
+* **IS** -  Number of subscribers with Internet access (thousand) ~ [Source]("https://stat.uz/uz/rasmiy-statistika/raqamli-iqtisodiyot")
+
+* **APC** -  Information about the availability of personal computers (excluding servers) in enterprises and organizations (units) ~ [Source]("https://stat.uz/uz/rasmiy-statistika/raqamli-iqtisodiyot")
+
+* **NCI** - Number of computers connected to the Internet at enterprises and organizations (units) ~ [Source]("https://stat.uz/uz/rasmiy-statistika/raqamli-iqtisodiyot")
+
+* **IA** - The share of enterprises and organizations with access to the Internet ~ [Source]("https://stat.uz/uz/rasmiy-statistika/raqamli-iqtisodiyot")
+
+* **AW** - Average monthly nominal wages of employees of legal entities whose main economic activity is "Information and Communication" ~ [Source]("https://stat.uz/uz/rasmiy-statistika/raqamli-iqtisodiyot")
+
+* **TT** - Total foreign trade turnover (mln US dollars, Export + Import)
+
+* **TB** - Trade balance (mln US dollars, Export - Import)
+
+All variables are quantitative.
+
+
+## 6. Descriptive statistics
+
+```{r}
+library(corrplot)
+library(readxl)
+mydata <- read_excel("./DATA/data.xlsx", 
+    sheet = "Main")
+head(mydata)
+str(mydata)
+```
+
+#### **Variables**\
+<hr/>
+*Numerical (quantitative, discrete):* `Export`, `TB`\
+*Numerical (quantitative, continuous):* `GCI`, `IS`, `APC`,`NCI`, `TT`, `AW`, `IA` \
+<hr/>
+*Categorical (qualitative, nominal):* - \
+*Categorical (qualitative, ordinal):* Region, Year
+
+```{r}
+summary(mydata)
+```
+
+Summary:
+
+* Year - Dataset provides information from 2015 to 2022
+
+* Export - The minimum export value of 14 regions is 75.2 mln US dollars. And on average, regions exported products worth of 617.8 million. But more than more than 50% of regions indicated 313.9 million US dollar export, which means there are potential outliers in the dataset
+
+* Import - Mean value of import shows that regions imported more products than they export on average (1350.7 million US dollars).
+
+* Growth rates in communication and information services (GCI) vary between 104.3% and 143.1%, with a mean growth rate of 116.1%.
+
+* IS - The number of internet subscribers shows substantial variation, with a minimum of 212.4 thousand and a maximum of 5385.0 thousand. The mean number of internet subscribers is 1147.6 thousand.
+
+* APC - The minimum APC is 17331 units, while the maximum is 381051 units.
+
+* NCI - The range for NCI is from a minimum of 3961 units to a maximum of 236242 units.
+
+* TT - ranges from 158.3 to 19609.0 million US dollars, with a mean of 1968.5 million US dollars.
+
+* TB - ranges from -10270.40 to 283.70 million US dollars, with a mean trade deficit of -732.95 million US dollars. A negative trade balance suggests a higher value of imports than exports on average in these regions
+
+```{r}
+# Boxplot for Export and Import
+boxplot(mydata$Export, mydata$Import, names = c("Export", "Import"), col = c("skyblue", "lightcoral"), main = "Boxplot of Export and Import")
+```
+Boxplot shows that there are many outlier regions in both export and import idicators and median tends to lower side of the candle.
+
+```{r}
+boxplot(mydata$AW, mydata$IS, names = c("Average monthly wages", "Number of subscribers with Internet access"), col = c("skyblue", "lightcoral"), main = "Boxplot of AW and IS")
+```
+
+
+### 7. Correlation analysis
+
+Correlation between two variables reveals if they are significantly correlated and provides information about the strength and direction of the linear relationship between them.
+
+The correlation coefficient (r) can range from -1 to 1.
+
+If r = 1, it means there is a complete positive correlation between variables.\
+If r equals 0, there is no linear connection between the two variables.
+If r = -1, then there is a complete negative correlation between the variables.
+
+```{r}
+corr <- cor(mydata[c(-1, -2)])
+corr
+corrplot(corr, order = "FPC")
+```
+
+```{r}
+# Ensure the dataframe columns are numeric for the correlation calculation
+numeric_data <- mydata[sapply(mydata, is.numeric)]
+
+# Reorder the columns to move TT, TB, Export, and Import to the start
+required_cols <- c("TT", "TB", "Export", "Import")
+remaining_cols <- setdiff(names(numeric_data), required_cols)
+mydata_reordered <- numeric_data[, c(required_cols, remaining_cols)]
+
+# Calculate the correlation matrix
+corr <- cor(mydata_reordered, use = "complete.obs")
+
+# Create the correlation plot with hierarchical clustering order
+corrplot(corr)
+```
+
+
+Apart from GCI, all variables significantly correlated with TT, but there is multicollinearity problem with these variables. To fix it let's create single Digitalization index which can explain the dataset.
+
+
+```{r}
+library(factoextra)
+library(tidyverse)
+
+pca_data <- mydata %>% select(GCI, IS, APC, NCI, AW, IA)
+
+# PCA
+pca_result <- prcomp(pca_data, scale = TRUE)
+pca_result2 <- princomp(pca_data, cor = TRUE)
+
+
+summary(pca_result2)
+summary(pca_result)
+fviz_eig(pca_result, addlabels = TRUE)
+#fviz_cos2(pca_result, choice = "var", axes = 1:3)
+```
+
+The table of Importance of components and Scree plot indicate that PC1 can explain 63% of the dataset so this component is can be used as Digitalization index.
+
+
+```{r}
+principal_components <- pca_result$x
+selected_components <- principal_components[, 1]
+
+pca_scores <- selected_components %*% t(principal_components[, 1])
+
+# Combine components to create the PCA index
+pca_index <- rowSums(pca_scores)
+
+min_range <- 0
+max_range <- 1
+scaled_pca_index <- scales::rescale(pca_index, to = c(min_range, max_range))
+nd <- mydata
+nd$Digix <- scaled_pca_index
+
+#tail(nd[c(-4, -3)], 20)
+corm <- cor(nd[c(-1, -2)]); corm
+corrplot(corm)
+```
+
+Based on the correlation matrix above, it is clear that the index we created has significant relation (91%) with Trade turnover of the region
+
+```{r}
+library(ggplot2)
+# Calculate mean Digix value for each region
+region_digix <- aggregate(Digix ~ Region, data = nd, FUN = mean)
+
+# Plotting the digitalization index over years for different regions
+ggplot(data=nd, aes(x = Year, y = Digix, color = Region)) +
+  geom_line() +
+  labs(x = "Year", y = "Digitalization Index", title = "Digitalization Index over Time by Region") +
+  theme_minimal()
+```
+
+```{r}
+ggplot(nd, aes(x = Digix, y = Export)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  labs(title = "Scatter Plot of Digix and Export",
+       x = "Digix",
+       y = "Export") +
+  theme_minimal()
+```
+
+
+```{r}
+boxplot(TT~Year, data = nd)
+```
+
+
+```{r}
+library(plm)
+pdata <- pdata.frame(nd, index = c("Region", "Year"))
+```
+
+```{r}
+# Scatter plot for each region (TT)
+ggplot(pdata, aes(x = Digix, y = TT, color = as.factor(Region))) +
+  geom_point() +
+  labs(title = "Scatter Plot of TT vs Digix by Region",
+       x = "Digix",
+       y = "TT")
+
+# Scatter plot for each region (Export)
+ggplot(pdata, aes(x = Digix, y = Export, color = as.factor(Region))) +
+  geom_point() +
+  labs(title = "Scatter Plot of Export vs Digix by Region",
+       x = "Digix",
+       y = "Export")
+
+# Scatter plot for each region (Export)
+ggplot(pdata, aes(x = Digix, y = Import, color = as.factor(Region))) +
+  geom_point() +
+  labs(title = "Scatter Plot of Import vs Digix by Region",
+       x = "Digix",
+       y = "Import")
+```
+
+
+
+```{r}
+library(gplots)
+plotmeans(TT~Region , main = 'Heterogeneity Across Regions', data = pdata)
+plotmeans(TT~Year , main = 'Heterogeneity Across Years', data = pdata)
+```
+These graphs suggest that heterogeneity differs between distinct units.
+
+
+### Pooled Model
+
+$H_0$: Pooled OLS is not the appropriate estimator
+
+$H_1$: Pooled OLS is the appropriate estimator
+```{r}
+pooledOls <- plm(TT ~ Digix, data = pdata , model = "pooling")
+summary(pooledOls)
+```
+
+$$TT_i = \beta_0 + \beta_1 \cdot Digix_{it} + u_{it}$$
+$$ TT = −914.80 + 18653.68 \cdot Digix_{it} + u_{it}$$
+
+Summary:
+
+* **P-Value:** - For the overall model p-value less than 5%. It indicates that there is strong evidence against the null hypothesis. So, we can reject the null hypothesis and accept the alternative hypothesis.
+* Intercepts are also significant as p values are less than 5%.
+* R-Squared: 83% of data can be understood with this model
+
+Pooled OLS ignores heterogeneity totally, therefore even if it has a P-Value of less than 5% and R2, showing high overall accuracy and suitability to use, we cannot rely on this model.
+
+```{r}
+# Scatter plot for each region
+ggplot(pdata, aes(x = Digix, y = TT, color = as.factor(Region))) +
+  geom_point() +
+  labs(title = "Scatter Plot of TT vs Digix by Region",
+       x = "Digix",
+       y = "TT")
+```
+
+
+### Least Squares Dummy Variable Model (LSDV)
+
+```{r}
+fixed.dum <-lm(TT ~ Digix + factor(Region)-1, data = pdata)
+summary(fixed.dum)
+```
+Here each region is regarded as a dummy variable for estimation.
+
+* Overall model is good as the p-value is less than 5%. 
+
+* Different regions contribute differently to Total Foreign Trade Turnover, as reflected by the fixed effects. Andijan, Khorezm, Tashkent City, and Tashkent Region, compared to others, have significant impact on Foreign Trade Turnover.
+
+* Multiple R-squared is 95% which is also more accurate than pooled OLS.
+
+```{r}
+library(car)
+yhat <- fixed.dum$fitted
+Region <- pdata$Region
+scatterplot(yhat ~ pdata$Digix| Region, xlab= "Regions", ylab ="yhat", smoother = quantregLine, legend = list( cex = 0.56, lty = 2))
+abline(lm(TT~Digix, data = pdata),lwd=3, col="red")
+```
+
+This graph includes regression lines for 14 regression models of each region. The redline is the total regression line of LSVD model.
+
+The complexity of LSDV increases with the number of parameters, including dummy variables, leading to less efficient estimators. That's why we need to continue with next model.
+
+### Fixed Effects using Within Model
+
+```{r}
+fixed <- plm(TT ~ Digix, data =pdata, index=c("Region", "Year"), model ="within")
+summary(fixed)
+```
+
+* P-Value: Overall model is good as the p-value less than 5%
+
+* The intercept values are significant as the p-value is less than 5%.
+
+* R2: Value of R2 is 0.48202, which is less than pooled OLS and LSVD, but more accurate than them.
+
+```{r}
+fixef(fixed)
+```
+Here intercept values of each region is provided. They are similar to the values we got from LSVD model. 
+
+### Random Effect Model Regression Analysis
+
+```{r}
+random <- plm(TT ~ Digix, data=pdata, index=c("Region", "Year"), model="random")
+summary(random)
+```
+
+* P-Value: Overall model is good as the p-value less than 5%
+
+* The Digix value is significant as the p-value is less than 5%, but intercept value has low significance
+
+* The value of R2 is 0.91129 and 0.63303, which is better than Fixed effects using within model
+
+### Tests
+
+**Breusch-Pagan (BP) tes (Graphical)**
+
+```{r}
+library(lmtest)
+bptest(TT ~ Digix+factor(Region)+factor(Year), data=pdata, studentize=F)
+```
+
+We may reject the null hypothesis since the BP test's P-value of less than 5% shows that the residual's variance is changing as the predictor value rises. As a result, heteroscedasticity exists in the data.
+
+**Pooled OLS vs Fixed Effect Model**
+
+H0: Pooled OLS model is consistent
+
+H1: Fixed effect model is consistent
+
+```{r}
+pFtest(fixed,pooledOls)
+```
+
+The result of pFtest () reveals that the p-value is less than 5%, allowing us to reject the null hypothesis. Therefore, the fixed effect model is consistent.
+
+**Hausman Test**
+
+H0: Random Effect is consistent.
+
+H1: Fixed Effect is consistent.
+
+```{r}
+phtest(fixed, random)
+```
+
+Here, the P-value is less than 5%. It suggests that there is significant evidence against the null hypothesis, with less than a 5% chance that it is right. As a result, the fixed effect model is an appropriate estimator.
+
+Two tests above proved that fixed effects model is best estimator, so let's check for time-fixed effects
+
+
+```{r}
+fixed.time <- plm(TT ~ Digix + factor(Year), data=pdata, index=c("Region",
+"Year"), model="within")
+#summary(fixed.time)
+pFtest(fixed.time, fixed)
+plmtest(fixed, c("time"), type=("bp"))
+```
+Both tests show lower p than alpha, which means we should add time-fixed effects to the model
+
+### Final Model
+
+Based one results of tests above we construct a regression model with Time Fixed Effects here:
+
+$$Y_{it} = \beta_0 + \beta_1 X_{it} + \delta_2 Dummy2 + \delta_T DummyT_t + u_{it}$$
+This model removes omitted variable bias by removing unobserved variables that change over time but remain constant between entities.
+
+```{r}
+fm <- plm(TT ~ Digix + factor(Year) - 1, data =pdata, index=c("Region", "Year"), model ="within", effect = "twoways")
+summary(fm)
+#tlm <- lm(TT ~ Digix + Region + factor(Year) - 1, data =pdata)
+#summary(tlm)
+```
+
+The final model is:
+$$TT_{it} = \beta_1 \cdot Digix_{it} + \alpha_i + \gamma_i + u_{it}$$
+* $TT_{it}$ - it is the dependent variable for region i at time t.\
+* $\beta_1$ - the coefficient for the variable $Digix_{it}$ \
+* $\alpha_i$ - represents the fixed effect for region i.\
+* $\gamma_i$ - represents the fixed effect for time t.\
+* $u_{it}$ - the error term.\
+
+$$TT_{it} = 19959.0 \cdot Digix_{it} + \alpha_i + \gamma_i + u_{it}$$
+The estimated fixed effects for each region are:
+```{r}
+fixef(fm)
+```
+
+**Summary** - The panel data analysis with two-way fixed effects provides useful insights into the economic variables that has influence on the dependent variable (TT) across different locations and time.
+
+The equation ($TT_{it} = 19959.0 \times Digix_{it} + \alpha_i + \gamma_t + u_{it}$) shows a strong positive correlation (91%) between the dependent variable (TT) and the digitalization. The estimated coefficient for (Digix) is 19959.0, which is statistically significant (p < 0.001).
+
+This coefficient shows how one unit rise in the Digitalization Index (Digix) is expected to impact on region's Foreign Trade Turnover (TT). In other terms, Foreign Trade Turnover of each region will rise by 19,959 million US dollars for every unit improvement in digitization. This indicates that the economic operations associated with international trade within the region benefits greatly from digitalization. Therefore, regions with higher digitalization are likely to witness a considerable boost in their trade activities.
+
+The fixed effects provide these additional details:
+
+- The Tashkent region has a relatively higher fixed effect (1601.92), hence it has a positive impact on the dependent variable beyond the digitalization, and the reason of this might be because Tashkent region includes the capital of Uzbekistan and it is more developed than other regions.
+
+- Some regions, such as Fergana, Kashkadarya, and Samarkand, have negative fixed effects. They may experience lower (TT) in the overall trend of (Digix).
+
+The ($R^2$) value of 0.49565 suggests that the model explains approximately 49.6% of the data.
+
+In conclusion, the results indicate the importance of digitaliation (Digix) in foreign trade turnover of regions. This model can be considered while developing strategies to enhance the economic development and well-being of these areas. However, further research may be needed to address the specific challenges and opportunities of each region.
+
+**Future of the study**
+
+Although this study identifies a regional variation in the digital economy that affect foreign trade turnover of regions, there are significant limitations. Firstly, there is a need for more research because the current studies have not established a common framework to measure the digital economy and there might be discrepancies in the model. Secondly, the assessment of model was established exclusively using the data, which is limited to Uzbekistan's regions, and may be less generalizable to other countries. This study's empirical examination of the digital economy's impact on inter-regional commerce is conducted at the macro level, and how it might be adapted to the more particular city level is an area for future research.
+
+
+
+
+
+
+
+## Cluster analysis
+
+```{r}
+library (cluster) # кластерный анализ
+library(GGally)
+library(plotly)
+# Remove non-numeric columns for clustering
+maind <- mydata %>% filter(Year == 2022)
+cd <- maind %>% select(GCI, IS, APC, NCI, IA, AW)
+scaled_dt1 <- scale(cd)
+fviz_nbclust(scaled_dt1, kmeans, method = "wss")
+
+```
+
+Perform K-means clustering:
+```{r}
+library(ggrepel)
+library(tidyr)
+library(geojsonio)
+library(tmaptools)
+library(tmap)
+library(sf)
+library(leaflet)
+
+
+# Data frame with number of clusters per year
+yed <- data.frame(
+  Year = 2015:2022,
+  KC = c(3, 3, 3, 3, 3, 4, 3, 3)
+)
+
+# Loop through unique years
+unique_years <- unique(mydata$Year)
+
+for (year in unique_years) {
+  # Subset data for the current year
+  md <- mydata %>% filter(Year == year) %>% select(Year, GCI, IS, APC, NCI, IA, AW, TNRS, NRS, NRSI, SHPC, SHLN, NCLN)
+  year_data <- mydata %>% filter(Year == year) %>% select(GCI, IS, APC, NCI, IA, AW, TNRS, NRS, NRSI, SHPC, SHLN, NCLN)
+  
+  # Check if data exists for the current year
+  if (nrow(year_data) > 0) {
+    # Scale the data
+    scaled_dt <- scale(year_data)
+    
+    # Determine the number of clusters for the current year
+    #ok <- fviz_nbclust(scaled_dt, kmeans, method = "wss")
+    #print(ok)
+    kc <- as.numeric(yed %>% filter(Year == year) %>% select(KC))
+    cat("Number of clusters for year", year, ":", kc, "\n")
+    
+    # Perform k-means clustering
+    set.seed(1) # Set seed for reproducibility
+    kmeans_result <- kmeans(scaled_dt, centers = kc)
+    
+    # Add cluster assignments back to the original data
+    mydata_clustered <- mydata %>% filter(Year == year) %>%
+      mutate(Cluster = kmeans_result$cluster)
+    
+    # Extract the first two principal components for plotting
+    pca_result <- prcomp(scaled_dt)
+    pc_data <- data.frame(pca_result$x[, 1:2])
+    pc_data <- cbind(pc_data, mydata_clustered)
+    
+    # Plotting the clusters
+    plot_title <- paste("Cluster Analysis Result for Year", year)
+    p <- ggplot(pc_data, aes(x = PC1, y = PC2, color = as.factor(Cluster))) +
+      geom_point() +
+      geom_text_repel(aes(label = Region), size = 3) +
+      labs(title = plot_title, color = "Cluster") +
+      theme_minimal()
+    
+    print(p)
+    
+        final_data <- cbind(md, Cluster = as.factor(kmeans_result$cluster))
+    #print(final_data)
+        # Parallel coordinate plot
+    p2 <- ggparcoord(data = final_data, columns = c(2:13), groupColumn = "Cluster", scale = "center") + labs (x = "Variables", У = "Values", title = "Cluster Analysis based on k means")
+    
+    # Make the plot interactive
+    ggplotly(p2)
+    print(p2)
+    
+    a <- aggregate(year_data, by=list(cluster=as.factor(kmeans_result$cluster)), mean)
+    print(a)
+   
+  } else {
+    cat("No data available for year", year, "\n")
+  }
+}
+
+```
+
+```{r}
+# Load required packages
+library(sf)
+library(leaflet)
+
+# Read GeoJSON file
+uzbekistan_geojson <- "./uzbekistan_regional.geojson"
+uzbekistan <- sf::st_read(uzbekistan_geojson)
+
+# Replace names
+uzbekistan$ADM1_EN[uzbekistan$ADM1_EN == "Kashkadarya province"] <- "Kashkadarya region"
+uzbekistan$ADM1_EN[uzbekistan$ADM1_EN == "Republic of Karakalpakstan"] <- "The Republic of Karakalpakstan"
+
+str(uzbekistan)
+uzbekistan$ADM1_EN 
+
+# Subset data for the selected year
+year_data_subset <- mydata %>% filter(Year == 2022) %>% select(Region)
+
+year_data_a <- mydata %>% filter(Year == 2022) %>% select(GCI, IS, APC, NCI, IA, AW, TNRS, NRS, NRSI, SHPC, SHLN, NCLN)
+
+# Scale the data
+scaled_data <- scale(year_data_a)  # Exclude Year column for scaling
+
+# Perform k-means clustering
+set.seed(1) # Set seed for reproducibility
+kmeans_result <- kmeans(scaled_data, centers = 3)
+
+# Add cluster assignments back to the original data
+year_data_clustered <- year_data_subset %>%
+  mutate(Cluster = kmeans_result$cluster)
+
+# Merge Digix values with the GeoJSON data
+uzbekistan <- merge(uzbekistan, year_data_clustered, by.x = "ADM1_EN", by.y = "Region", all.x = TRUE)
+
+# Convert geometry to MULTIPOLYGON
+uzbekistan <- st_cast(uzbekistan, "MULTIPOLYGON")
+
+# Define colors for each cluster
+cluster_colors <- c("#e9493e", "#00bb38", "#629dff")
+
+# Plot the map
+leaflet(data = uzbekistan) %>%
+  addProviderTiles("OpenStreetMap.Mapnik") %>%
+  addPolygons(fillColor = ~cluster_colors[Cluster],
+              fillOpacity = 0.8,
+              stroke = FALSE,
+              label = ~paste(ADM1_EN, ": Cluster", Cluster)) %>%
+  addLegend("bottomright", 
+            colors = cluster_colors,
+            labels = c("Cluster 1", "Cluster 2", "Cluster 3"),
+            title = "Clusters",
+            opacity = 1)
+
+```
+
+
+### Cluster 1
+
+Cluster 1 comprises regions characterized by moderate development in the context of digitalization, particularly within the realm of communication and information services. The growth rate for communication and information services (GCI) in this cluster stands at 127.80%, indicating a steady but not exceptional expansion in this sector. The number of subscribers with Internet access (IS) in these regions is relatively low, at 1677.471 thousand, suggesting limited penetration of Internet services among the population. This limitation could be attributed to various factors, including inadequate infrastructure, lower levels of digital literacy, or economic constraints preventing wider access to Internet services.
+
+Furthermore, the availability of personal computers (APC) in enterprises and organizations is moderate, with 56815.88 units reported. This level of availability indicates that while there are computers present in the business sector, their distribution is not extensive, potentially impacting productivity and digital engagement within these organizations. The number of computers connected to the Internet (NCI) is 29377.5 units, reflecting a similar trend of moderate connectivity. The share of enterprises and organizations with Internet access (IA) is relatively low at 13.46%, pointing to significant room for improvement in integrating digital tools and online connectivity in business operations. The average monthly nominal wages in the information and communication sector (AW) are 4121.696 thousand soums, which is on the lower end, suggesting that the sector might not be as financially rewarding in these regions, potentially influencing the attractiveness of careers in this field.
+
+### Cluster 2
+
+Regions in Cluster 2 exhibit slightly more advanced digitalization metrics compared to Cluster 1, but they still fall short of the highest standards. The growth rate for communication and information services (GCI) in this cluster is 124.47%, slightly lower than in Cluster 1, yet still indicative of a growing sector. The number of subscribers with Internet access (IS) is 1583.778 thousand, which is comparable to Cluster 1, reinforcing the notion that Internet penetration remains an area needing further development. This similarity in Internet subscription numbers suggests that these regions might face similar barriers to digital adoption as those in Cluster 1, such as infrastructural limitations or socio-economic factors.
+
+The availability of personal computers (APC) in enterprises and organizations is higher in Cluster 2, with 70429.40 units, indicating better provision of digital tools within the business sector. This increased availability likely supports enhanced operational efficiency and digital engagement among businesses. Correspondingly, the number of computers connected to the Internet (NCI) is higher at 39316.0 units, reflecting improved connectivity and integration of digital resources. The share of enterprises and organizations with Internet access (IA) in Cluster 2 is 22.08%, demonstrating a notable improvement over Cluster 1. This higher percentage suggests that more businesses are leveraging online tools and platforms to enhance their operations and market reach. The average monthly nominal wages in the information and communication sector (AW) are slightly higher at 4201.977 thousand soums, indicating a marginally more lucrative sector, which could potentially attract more talent and investment into this field.
+
+### Cluster 3
+
+Cluster 3 represents the most advanced regions in terms of digitalization and development of communication and information services. The growth rate for communication and information services (GCI) in this cluster is the highest at 130.14%, highlighting robust expansion and significant investments in this sector. The number of subscribers with Internet access (IS) is markedly higher at 5384.981 thousand, indicating extensive penetration and widespread access to Internet services among the population. This high level of Internet subscription suggests well-developed infrastructure, higher digital literacy, and greater economic capability to support widespread Internet use.
+
+The availability of personal computers (APC) in enterprises and organizations is exceptionally high at 381051.0 units, reflecting a substantial provision of digital tools within the business sector. This extensive availability supports advanced operational capabilities and fosters a high level of digital engagement and productivity. Similarly, the number of computers connected to the Internet (NCI) is the highest among all clusters at 236242.0 units, indicating comprehensive connectivity and integration of digital resources. The share of enterprises and organizations with Internet access (IA) is also the highest at 28.60%, demonstrating widespread adoption of online tools and platforms, which likely enhances business operations and competitiveness. The average monthly nominal wages in the information and communication sector (AW) are significantly higher at 9148.741 thousand soums, making this sector highly lucrative and likely attracting top talent and substantial investment. This high wage level suggests a vibrant and dynamic sector that is central to the economic activities in these regions, further driving digital advancement and economic growth.
+
+
+
+
+
+
+
+
+## References
+[^1]: Li, M.; Zhang, L.; Zhang, Z. Impact of Digital Economy on Inter-Regional Trade: An Empirical Analysis in China. Sustainability 2023, 15, 12086. https://doi.org/10.3390/su151512086
+[^2]: Abeliansky, A.L.; Hilbert, M. Digital technology and international trade: Is it the quantity of subscriptions or the quality of data
+speed that matters? Telecommun. Policy 2017, 41, 35–48.
+[^3]: He, S.; Zhao, J.; Zhang, R. Development level of digital economy, trade costs and trade in value-added. Int. Econ. Trade Res. 2021,
+11, 4–19.
+[^4]: Baltagi, B. H. (2005). Econometric analysis of panel data (Vol. 3). John Wiley & Sons.
+[^5]: Wooldridge, J. M. (2010). Econometric analysis of cross section and panel data (2nd ed.). MIT press. [2]
+[^6]: Arellano, M., & Bond, S. (1991). Some tests of specification for panel data: Monte Carlo evidence. Review of Economic Studies, 58(2), 277-297. [3]
+
